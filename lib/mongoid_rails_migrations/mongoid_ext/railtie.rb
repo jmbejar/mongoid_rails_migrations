@@ -2,7 +2,7 @@
 
 if defined?(Rails::Railtie)
   module Rails #:nodoc:
-    module Mongoid #:nodoc:
+    module MongoMigrations #:nodoc:
       class Railtie < Rails::Railtie
         if config.respond_to?(:app_generators)
           config.app_generators.orm :mongoid, :migration => true

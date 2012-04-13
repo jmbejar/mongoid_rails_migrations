@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-module Mongoid #:nodoc
+module MongoMigrations #:nodoc
   # Exception that can be raised to stop migrations from going backwards.
   class IrreversibleMigration < RuntimeError
   end
@@ -144,7 +144,8 @@ module Mongoid #:nodoc
 
       def connection
         # ActiveRecord::Base.connection
-        Mongoid.database
+        #Mongoid.database
+        MongoDB.connection
       end
 
       def method_missing(method, *arguments, &block)
@@ -223,7 +224,8 @@ module Mongoid #:nodoc
       def get_all_versions
         # table = Arel::Table.new(schema_migrations_table_name)
         #         Base.connection.select_values(table.project(table['version']).to_sql).map(&:to_i).sort
-        DataMigration.all.map {|datamigration| datamigration.version.to_i }.sort
+        #DataMigration.all.map {|datamigration| datamigration.version.to_i }.sort
+        DataMigration.versions.to_a.map{ |m| m['version'] }.sort
       end
 
       def current_version
@@ -377,10 +379,12 @@ module Mongoid #:nodoc
         # end
         if down?
           @migrated_versions.delete(version)
-          DataMigration.where(:version => version.to_s).first.destroy
+          #DataMigration.where(:version => version.to_s).first.destroy
+          DataMigration.down(version)
         else
           @migrated_versions.push(version).sort!
-          DataMigration.create(:version => version.to_s)
+          #DataMigration.create(:version => version.to_s)
+          DataMigration.up(version)
         end
       end
 

@@ -1,6 +1,6 @@
 require 'rails/generators/mongoid/mongoid_generator'
 
-module Mongoid
+module MongoMigrations
   module Generators
     class MigrationGenerator < Base
 

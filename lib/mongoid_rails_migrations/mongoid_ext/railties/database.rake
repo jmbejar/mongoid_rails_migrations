@@ -3,7 +3,7 @@ namespace :db do
     unless Rake::Task.task_defined?("db:mongoid:drop")
       desc 'Drops all the collections for the database for the current Rails.env'
       task :drop => :environment do
-        Mongoid.master.collections.each {|col| col.drop_indexes && col.drop unless ['system.indexes', 'system.users'].include?(col.name) }
+        MongoDB.connection.collections.each {|col| col.drop_indexes && col.drop unless ['system.indexes', 'system.users'].include?(col.name) }
       end
     end
 
@@ -34,13 +34,13 @@ namespace :db do
 
     desc 'Current database version'
     task :version => :environment do
-      puts Mongoid::Migrator.current_version.to_s
+      puts MongoMigrations::Migrator.current_version.to_s
     end
 
     desc "Migrate the database through scripts in db/migrate. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
     task :migrate => :environment do
-      Mongoid::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
-      Mongoid::Migrator.migrate("db/mongoid/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      MongoMigrations::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
+      MongoMigrations::Migrator.migrate("db/mongoid/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
     end
 
     namespace :migrate do
@@ -63,21 +63,21 @@ namespace :db do
       task :up => :environment do
         version = ENV["VERSION"] ? ENV["VERSION"].to_i : nil
         raise "VERSION is required" unless version
-        Mongoid::Migrator.run(:up, "db/mongoid/migrate/", version)
+        MongoMigrations::Migrator.run(:up, "db/mongoid/migrate/", version)
       end
 
       desc 'Runs the "down" for a given migration VERSION.'
       task :down => :environment do
         version = ENV["VERSION"] ? ENV["VERSION"].to_i : nil
         raise "VERSION is required" unless version
-        Mongoid::Migrator.run(:down, "db/mongoid/migrate/", version)
+        MongoMigrations::Migrator.run(:down, "db/mongoid/migrate/", version)
       end
     end
 
     desc 'Rolls the database back to the previous migration. Specify the number of steps with STEP=n'
     task :rollback => :environment do
       step = ENV['STEP'] ? ENV['STEP'].to_i : 1
-      Mongoid::Migrator.rollback('db/mongoid/migrate/', step)
+      MongoMigrations::Migrator.rollback('db/mongoid/migrate/', step)
     end
 
     namespace :schema do

@@ -1,7 +1,7 @@
 require 'rails/generators/named_base'
 require 'rails/generators/migration'
 
-module Mongoid #:nodoc:
+module MongoMigrations #:nodoc:
   module Generators #:nodoc:
     class Base < ::Rails::Generators::NamedBase #:nodoc:
       include Rails::Generators::Migration
